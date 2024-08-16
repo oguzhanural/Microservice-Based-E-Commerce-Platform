@@ -1,18 +1,28 @@
 extend schema 
-@link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@shareable"])
+@link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@external", "@shareable"])
 
 type Query {
 
 }
 
+type Mutation {
+    ### Accounts
+    "Updates the logged-in user's(customer or seller) profile information"
+    updateProfile(updateProfileInput: UpdateProfileInput ): UpdateProfileResponse!
+    "Creates a new adress for the currently authenticated customer"
+    createAddress(address: CreateAddressInput! ): CreateAddressResponse!
+    "Updates a exits adress for the authenticated customer or seller"
+    updateAddress(address: UpdateAddressInput! ): UpdateAddressResonse!
+
+}
+
 interface User @key(fields: "id") {
     id: ID!
+    "The user's first and last name"
     name: String!
-    surname: String!
     email: String!
     phone: String!
     password: String!
-    addresses: [Address!]!
     createdAt: String
     updatedAt: String
 }
@@ -20,13 +30,17 @@ interface User @key(fields: "id") {
 type Seller implements User @key(fields: "id") {
     storeName: String!
     iban: String!
-    description: String
+    storeDescription: String
+    "The overall calculated rating for the customers"
     overallRating: Float
     budget: Int
+    addresses: [Address!]!
 }
 
 type Customer implements User @key(fields: "id") {
     birthday: String
+    shoppingCart: [Product!]
+    addresses: [Address!]
 
 }
 
@@ -37,8 +51,63 @@ type Address {
     city: String!
     state: String
     description: String!
-    postalCode: String!
+    postalCode: String
     country: String!
 
+}
+
+interface MutationResponse {
+  "Similar to HTTP status code, represents the status of the mutation"
+  code: Int!
+  "Indicates whether the mutation was successful"
+  success: Boolean!
+  "Human-readable message for the UI"
+  message: String!
+}
+
+input UpdateProfileInput {
+    "The user's first and last name"
+    name: String!
+    email: String!
+    phone: String!
+    password: String!
+
+}
+
+type UpdateProfileResponse implements MutationResponse {
+    user: User
+}
+
+input CreateAddressInput {
+    street: String
+    title: String!
+    city: String!
+    state: String
+    description: String!
+    postalCode: String
+    country: String!
+
+}
+
+type CreateAddressResponse implements MutationResponse {
+    address: Address
+}
+
+input UpdateAddressInput {
+    street: String
+    title: String!
+    city: String!
+    state: String
+    description: String!
+    postalCode: String
+    country: String!
+}
+
+type UpdateAddressResonse implements MutationResponse {
+    address: Address
+}
+
+extend type Product @key(fields:"id") {
+    id: ID! @external
 }
 
