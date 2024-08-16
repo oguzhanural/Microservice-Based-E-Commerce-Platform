@@ -1,0 +1,44 @@
+extend schema 
+@link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@shareable"])
+
+type Query {
+
+}
+
+interface User @key(fields: "id") {
+    id: ID!
+    name: String!
+    surname: String!
+    email: String!
+    phone: String!
+    password: String!
+    addresses: [Address!]!
+    createdAt: String
+    updatedAt: String
+}
+
+type Seller implements User @key(fields: "id") {
+    storeName: String!
+    iban: String!
+    description: String
+    overallRating: Float
+    budget: Int
+}
+
+type Customer implements User @key(fields: "id") {
+    birthday: String
+
+}
+
+type Address {
+    id: ID!
+    street: String
+    title: String!
+    city: String!
+    state: String
+    description: String!
+    postalCode: String!
+    country: String!
+
+}
+
